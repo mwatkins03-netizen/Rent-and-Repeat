@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Rent &amp; Repeat</title>
+<meta name="description" content="An Oxford closet-share for college outfit rentals: browse by event, see only what is free for your dates, request a booking, and keep the owner's closet, bookings and earnings in one place. Everything stays on your device.">
+<meta name="theme-color" content="#f7f1ea">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=Hanken+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:#f7f1ea; --paper:#fffaf5; --blush:#f1dcd6; --blush-deep:#e4bdb4;
+  --navy:#14213d; --navy-soft:#2b3a5c; --red:#c8102e; --red-soft:#f6d7da;
+  --ink:#1c1a22; --muted:#6f6672; --line:#e6dad3;
+  --grove:#3f7a4e; --grove-soft:#dfeadf; --gold:#c9a24d; --amber-soft:#fff0d2;
+  --r-card:18px; --r-pill:999px; --r-ui:12px;
+  --display:"Instrument Serif", Georgia, "Times New Roman", serif;
+  --sans:"Hanken Grotesk", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --shadow:0 1px 2px rgba(20,33,61,.05), 0 12px 32px -16px rgba(20,33,61,.28);
+  --tab-h:64px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased;font-variant-numeric:tabular-nums}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(70% 45% at 0% 0%, rgba(241,220,214,.85), transparent 60%),
+             radial-gradient(45% 35% at 100% 0%, rgba(20,33,61,.08), transparent 60%);}
+em,i{font-style:normal}
+a{color:var(--navy)}
+button{font:inherit;color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+input,select,textarea{font:inherit;color:inherit}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px;border-radius:6px}
+
+/* ---------- type system (no italics: contrast by size, weight, tracking, caps) ---------- */
+h1,h2,h3{font-family:var(--display);font-weight:400;letter-spacing:-.015em;margin:0;line-height:1.02}
+h1{font-size:clamp(38px,6vw,66px)}
+h2{font-size:clamp(28px,3.6vw,38px)}
+h3{font-size:24px}
+.eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:var(--red)}
+.eyebrow.navy{color:var(--navy)}
+.lede{color:var(--muted);max-width:56ch;margin:10px 0 0;font-size:17px}
+.accent{color:var(--red)}
+.caps{font-size:12px;letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+
+/* ---------- shell ---------- */
+.app{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:0 20px 120px}
+header.top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:20px 0 12px}
+.wordmark{text-decoration:none;display:flex;align-items:baseline;gap:10px;color:var(--navy)}
+.wordmark .wm{font-family:var(--display);font-size:36px;line-height:1;letter-spacing:-.02em}
+.wordmark .wm b{font-weight:400;color:var(--red)}
+.wordmark small{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);font-weight:800;padding-left:10px;border-left:2px solid var(--red)}
+nav.tabs{display:flex;gap:4px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-pill);padding:4px}
+nav.tabs button{border:0;background:transparent;padding:8px 14px;border-radius:var(--r-pill);font-weight:700;font-size:14px;color:var(--muted);display:flex;align-items:center;gap:7px;position:relative;transition:color .2s}
+nav.tabs button svg{width:18px;height:18px;flex:none}
+nav.tabs button[aria-selected="true"]{background:var(--navy);color:#fff}
+nav.tabs .badge{background:var(--red);color:#fff;font-size:11px;padding:1px 7px;border-radius:999px;font-weight:800;min-width:20px;text-align:center}
+nav.tabs button[aria-selected="true"] .badge{background:#fff;color:var(--red)}
+main{padding-top:4px}
+.view{display:none}.view.on{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (max-width:760px){
+  .app{padding-bottom:calc(var(--tab-h) + 28px)}
+  header.top{padding:16px 0 8px}
+  .wordmark .wm{font-size:30px}
+  .wordmark small{display:none}
+  nav.tabs{position:fixed;left:10px;right:10px;bottom:max(10px, env(safe-area-inset-bottom));z-index:30;box-shadow:0 8px 30px rgba(20,33,61,.22);justify-content:space-between;height:var(--tab-h);align-items:center}
+  nav.tabs button{padding:6px 4px;flex:1;flex-direction:column;gap:3px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;font-weight:800;border-radius:14px;height:54px;justify-content:center}
+  nav.tabs button svg{width:22px;height:22px}
+  nav.tabs .badge{position:absolute;top:4px;right:calc(50% - 22px)}
+}
+
+/* ---------- hero + date bar ---------- */
+.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:24px;align-items:end;padding:14px 0 18px}
+@media (max-width:860px){.hero{grid-template-columns:1fr;gap:14px;padding:8px 0 12px}.lede{font-size:15px}}
+.need{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;box-shadow:var(--shadow)}
+.need .lbl{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.need .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.need input[type=date]{flex:1;min-width:130px}
+.need .hint{font-size:13px;color:var(--muted);margin-top:8px}
+.quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.quick button{border:1px dashed var(--blush-deep);background:transparent;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700;color:var(--navy);min-height:30px}
+.quick button:hover{background:var(--blush)}
+
+/* ---------- category rail ---------- */
+.rail{display:flex;gap:10px;overflow-x:auto;padding:6px 20px 14px;scroll-snap-type:x proximity;scrollbar-width:none;margin:0 -20px}
+.rail::-webkit-scrollbar{display:none}
+.cat{flex:none;scroll-snap-align:start;border:1px solid var(--line);background:var(--paper);border-radius:16px;padding:8px 14px 8px 8px;display:flex;align-items:center;gap:10px;font-weight:700;font-size:14px;color:var(--navy);transition:transform .2s,border-color .2s,background .2s;min-height:56px;text-align:left}
+.cat .ico{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;flex:none;background:var(--c-soft,var(--blush))}
+.cat .ico svg{width:22px;height:22px}
+.cat .cnt{font-size:10px;color:var(--muted);font-weight:800;display:block;letter-spacing:.08em;text-transform:uppercase;margin-top:1px}
+.cat:hover{transform:translateY(-2px);border-color:var(--navy-soft)}
+.cat[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+.cat[aria-pressed="true"] .cnt{color:rgba(255,255,255,.7)}
+.cat[aria-pressed="true"] .ico{background:rgba(255,255,255,.14)}
+
+/* ---------- grid ---------- */
+.grid{columns:4 220px;column-gap:16px}
+.card{break-inside:avoid;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden;margin:0 0 16px;box-shadow:var(--shadow);transition:transform .25s ease, box-shadow .25s ease;position:relative}
+@media (hover:hover){.card:hover{transform:translateY(-4px);box-shadow:0 2px 4px rgba(20,33,61,.05), 0 22px 40px -18px rgba(20,33,61,.4)}
+ .card:hover .pic svg .dress{transform:rotate(-1.5deg)}}
+.card .pic{display:block;width:100%;aspect-ratio:4/5;background:var(--blush)}
+.card .pic svg,.card .pic img{width:100%;height:100%;display:block;object-fit:cover}
+.pic svg .dress{transform-origin:100px 60px;transition:transform .5s cubic-bezier(.2,.8,.2,1)}
+.card .body{padding:12px 14px 14px}
+.card .ttl{font-family:var(--display);font-size:21px;line-height:1.1;margin:0 0 4px;letter-spacing:-.01em}
+.card .meta{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--muted);gap:8px}
+.card .price{font-weight:800;color:var(--ink);font-size:15px;white-space:nowrap}
+.card .price span{font-weight:500;color:var(--muted);font-size:12px}
+.card .open{position:absolute;inset:0;border:0;background:transparent;text-indent:-9999px}
+.card .stat{position:absolute;top:10px;left:10px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:5px 9px;border-radius:999px;background:rgba(255,250,245,.94);backdrop-filter:blur(4px);display:flex;align-items:center;gap:5px}
+.stat::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.stat.ok{color:var(--grove)}.stat.no{color:var(--red)}
+.card .heart{position:absolute;top:8px;right:8px;z-index:2;border:0;background:rgba(255,250,245,.92);border-radius:50%;width:34px;height:34px;display:grid;place-items:center;color:var(--red);transition:transform .2s}
+.card .heart:active{transform:scale(1.3)}
+.card .pin{font-size:12px;color:var(--muted);margin-top:6px;display:flex;align-items:center;gap:5px}
+.card .pin svg{width:12px;height:12px}
+.empty{padding:40px 20px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:var(--r-card);background:rgba(255,250,245,.6)}
+.empty b{display:block;font-family:var(--display);font-size:26px;color:var(--ink);font-weight:400;margin-bottom:6px}
+@media (max-width:560px){
+  .grid{columns:2;column-gap:10px}.card{margin-bottom:10px;border-radius:14px}.card .ttl{font-size:17px}.card .body{padding:9px 10px 11px}.card .meta{font-size:12px;flex-wrap:wrap;gap:2px 6px}.card .stat{font-size:9px;padding:4px 7px}.card .heart{width:30px;height:30px}
+}
+
+/* ---------- buttons/forms ---------- */
+.btn{border:1px solid var(--navy);background:var(--navy);color:#fff;border-radius:var(--r-pill);padding:11px 18px;font-weight:700;font-size:14px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s ease, background .2s;min-height:44px}
+.btn:hover{transform:translateY(-1px);background:var(--navy-soft)}
+.btn.red{background:var(--red);border-color:var(--red)}.btn.red:hover{background:#a90d26}
+.btn.ghost{background:transparent;color:var(--navy)}.btn.ghost:hover{background:var(--blush)}
+.btn.soft{background:var(--blush);border-color:var(--blush);color:var(--navy)}
+.btn.danger{background:transparent;border-color:var(--red);color:var(--red)}.btn.danger:hover{background:var(--red-soft)}
+.btn.sm{padding:6px 12px;font-size:13px;min-height:36px}
+.btn[disabled]{opacity:.45;cursor:not-allowed;transform:none}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field label{font-size:12px;font-weight:800;color:var(--navy);letter-spacing:.08em;text-transform:uppercase}
+.field .help{font-size:12px;color:var(--muted);font-weight:500;text-transform:none;letter-spacing:0}
+input[type=text],input[type=number],input[type=date],input[type=email],input[type=tel],select,textarea{width:100%;border:1px solid var(--line);background:#fff;border-radius:var(--r-ui);padding:11px 12px;font-size:16px;min-height:44px}
+textarea{min-height:80px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.two{grid-template-columns:1fr}}
+
+/* ---------- sheet ---------- */
+.sheet-bg{position:fixed;inset:0;background:rgba(20,33,61,.5);z-index:40;display:none;backdrop-filter:blur(3px)}
+.sheet-bg.on{display:block}
+.sheet{position:fixed;z-index:41;inset:auto 0 0 0;max-height:94vh;overflow:auto;background:var(--paper);border-radius:24px 24px 0 0;box-shadow:0 -10px 40px rgba(20,33,61,.3);display:none;overscroll-behavior:contain}
+.sheet.on{display:block;animation:up .3s cubic-bezier(.2,.8,.2,1)}
+@keyframes up{from{transform:translateY(40px);opacity:0}to{transform:none;opacity:1}}
+.sheet .grab{display:none}
+@media (max-width:819px){.sheet .grab{display:block;width:44px;height:5px;border-radius:3px;background:var(--line);margin:10px auto 0}}
+@media (min-width:820px){.sheet{inset:50% auto auto 50%;transform:translate(-50%,-50%);width:min(1000px,94vw);border-radius:24px;max-height:90vh}
+  .sheet.on{animation:pop .25s ease}
+  @keyframes pop{from{transform:translate(-50%,-48%);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}}
+.sheet .x{position:sticky;top:10px;float:right;margin:10px 12px 0 0;z-index:2;border:0;background:var(--blush);border-radius:50%;width:40px;height:40px;font-size:20px;color:var(--navy)}
+.detail{display:grid;grid-template-columns:1fr 1.1fr}
+@media (max-width:819px){.detail{grid-template-columns:1fr}.detail .pic{max-height:46vh}}
+.detail .pic{background:var(--blush);min-height:300px;display:grid;place-items:center;overflow:hidden}
+.detail .pic svg,.detail .pic img{width:100%;height:100%;max-height:70vh;object-fit:cover;display:block}
+.detail .info{padding:22px 24px 28px}
+.detail .info h2{font-size:38px}
+.kv{display:flex;flex-wrap:wrap;gap:8px 18px;color:var(--muted);font-size:14px;margin:8px 0 14px}
+.kv b{color:var(--ink);font-weight:800}
+.desc{margin:0 0 16px}
+
+/* ---------- calendar ---------- */
+.cal{border:1px solid var(--line);border-radius:var(--r-card);background:#fff;padding:12px;margin:10px 0 12px}
+.cal .hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.cal .hd b{font-family:var(--display);font-weight:400;font-size:22px}
+.cal .hd button{border:1px solid var(--line);background:var(--paper);border-radius:50%;width:36px;height:36px;font-size:18px}
+.cal .dow,.cal .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.cal .dow span{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);text-align:center;font-weight:800}
+.cal .d{aspect-ratio:1;border:0;background:transparent;border-radius:10px;font-size:14px;font-weight:700;display:grid;place-items:center;position:relative;min-height:36px}
+.cal .d:hover:not([disabled]){background:var(--blush)}
+.cal .d.pad{visibility:hidden}
+.cal .d.past{color:#c9bfc4;font-weight:500}
+.cal .d.booked{background:var(--red-soft);color:var(--red);text-decoration:line-through;cursor:not-allowed}
+.cal .d.req{background:var(--amber-soft);color:#8a6a1c;cursor:not-allowed}
+.cal .d.sel{background:var(--navy);color:#fff}
+.cal .d.inr{background:var(--navy-soft);color:#fff}
+.cal .d.sel:hover,.cal .d.inr:hover{background:var(--navy)}
+.cal .d.today::after{content:"";position:absolute;bottom:4px;width:4px;height:4px;border-radius:50%;background:currentColor}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin:0 0 12px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+.pick{display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:var(--cream);border-radius:var(--r-ui);padding:10px 12px;margin-bottom:12px;font-size:14px}
+.total{font-family:var(--display);font-size:28px}
+
+/* ---------- lists ---------- */
+.bar{display:flex;justify-content:space-between;align-items:end;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.list{display:flex;flex-direction:column;gap:10px}
+.row-item{display:grid;grid-template-columns:64px 1fr auto;gap:14px;align-items:center;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:10px 12px}
+.row-item .th{width:64px;height:80px;border-radius:10px;overflow:hidden;background:var(--blush)}
+.row-item .th svg,.row-item .th img{width:100%;height:100%;object-fit:cover;display:block}
+.row-item .nm{font-family:var(--display);font-size:21px;line-height:1.1}
+.row-item .sub{font-size:13px;color:var(--muted)}
+.row-item .acts{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+@media (max-width:600px){.row-item{grid-template-columns:56px 1fr}.row-item .acts{grid-column:1/-1;justify-content:flex-start}}
+.pill{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:3px 9px;border-radius:999px;vertical-align:middle}
+.pill.requested{background:var(--amber-soft);color:#8a6a1c}
+.pill.confirmed{background:var(--grove-soft);color:var(--grove)}
+.pill.out{background:var(--red-soft);color:var(--red)}
+.pill.returned{background:#e6e8ef;color:var(--navy)}
+.pill.declined{background:#eee;color:#777}
+.pill.overdue{background:var(--red);color:#fff}
+.tabs2{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;margin:0 -20px 12px;padding:0 20px;scrollbar-width:none}
+.tabs2::-webkit-scrollbar{display:none}
+.tabs2 button{flex:none;border:1px solid var(--line);background:var(--paper);border-radius:var(--r-pill);padding:8px 14px;font-size:13px;font-weight:700;color:var(--muted);min-height:38px}
+.tabs2 button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+/* ---------- analytics ---------- */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:14px 0 20px}
+@media (max-width:760px){.stats{grid-template-columns:1fr 1fr}}
+.stat-tile{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:14px 16px;position:relative;overflow:hidden}
+.stat-tile::after{content:"";position:absolute;right:-20px;top:-20px;width:70px;height:70px;border-radius:50%;background:var(--blush);opacity:.6}
+.stat-tile .k{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--muted);font-weight:800}
+.stat-tile .v{font-family:var(--display);font-size:38px;line-height:1.1;margin-top:4px;position:relative}
+.stat-tile .s{font-size:12px;color:var(--muted)}
+@media (max-width:520px){.stat-tile .v{font-size:30px}}
+.bars{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.bar-row{display:grid;grid-template-columns:150px 1fr 64px;gap:10px;align-items:center;font-size:14px}
+.bar-row .trk{height:14px;background:#efe6e2;border-radius:999px;overflow:hidden}
+.bar-row .fill{height:100%;background:linear-gradient(90deg,var(--navy),var(--red));border-radius:999px;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.bar-row .n{text-align:right;font-weight:800}
+@media (max-width:520px){.bar-row{grid-template-columns:96px 1fr 50px;font-size:13px}}
+table.ig{width:100%;border-collapse:collapse;font-size:14px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);overflow:hidden}
+table.ig th,table.ig td{padding:9px 10px;text-align:left;border-bottom:1px solid var(--line)}
+table.ig th{font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);font-weight:800}
+table.ig td input{width:92px;padding:6px 8px;min-height:36px}
+table.ig tr:last-child td{border-bottom:0}
+.tbl-wrap{overflow-x:auto;margin:0 -20px;padding:0 20px}
+.note{background:rgba(255,250,245,.8);border-left:3px solid var(--gold);padding:10px 14px;border-radius:0 12px 12px 0;font-size:14px;color:var(--muted);margin:12px 0}
+.panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-card);padding:18px 20px;margin:14px 0}
+.panel p{margin:8px 0}
+
+/* ---------- owner closet strip ---------- */
+.season{display:flex;gap:12px;align-items:center;background:var(--navy);color:#fff;border-radius:var(--r-card);padding:14px 18px;margin:0 0 16px;position:relative;overflow:hidden}
+.season::before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 14px,rgba(255,255,255,.04) 14px 16px)}
+.season .cap{font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:800;color:#f3c6cc;position:relative}
+.season .msg{font-family:var(--display);font-size:22px;line-height:1.1;position:relative}
+.season .sub{font-size:13px;color:rgba(255,255,255,.75);position:relative}
+
+/* photo uploader */
+.drop{border:2px dashed var(--blush-deep);border-radius:var(--r-card);padding:16px;text-align:center;background:#fff;color:var(--muted);font-size:14px;display:grid;gap:8px;place-items:center}
+.drop .prev{width:120px;height:150px;border-radius:12px;overflow:hidden;background:var(--blush)}
+.drop .prev img,.drop .prev svg{width:100%;height:100%;object-fit:cover;display:block}
+.swatches{display:flex;gap:8px;flex-wrap:wrap}
+.swatches button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;box-shadow:inset 0 0 0 1px rgba(0,0,0,.08)}
+.swatches button[aria-pressed="true"]{border-color:var(--ink)}
+.styles{display:flex;gap:6px;flex-wrap:wrap}
+.styles button{border:1px solid var(--line);background:#fff;border-radius:10px;padding:3px;width:56px;height:70px}
+.styles button[aria-pressed="true"]{border-color:var(--navy);background:var(--blush)}
+.styles svg{width:100%;height:100%}
+.pats{display:flex;gap:6px;flex-wrap:wrap}
+.pats button{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 11px;font-size:12px;font-weight:700}
+.pats button[aria-pressed="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 24px);transform:translateX(-50%) translateY(20px);background:var(--navy);color:#fff;padding:11px 18px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;transition:.25s;z-index:60;pointer-events:none;max-width:90vw;text-align:center;box-shadow:0 10px 30px rgba(20,33,61,.3)}
+.toast.on{opacity:1;transform:translateX(-50%)}
+@media (min-width:761px){.toast{bottom:28px}}
+
+footer{margin-top:40px;border-top:1px solid var(--line);padding-top:18px;font-size:13px;color:var(--muted)}
+footer p{margin:6px 0}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <a class="wordmark" href="#browse" id="home"><span class="wm">Rent <b>&amp;</b> Repeat</span><small>Oxford closet share</small></a>
+    <nav class="tabs" aria-label="Sections">
+      <button data-view="browse" aria-selected="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l1 4-4 2-4-2z"/><path d="M8 10 4 20h16L16 10"/></svg><span class="lbl">Browse</span></button>
+      <button data-view="closet" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4a2 2 0 0 1 2 2c0 1.2-2 1.5-2 3"/><path d="M12 9 3 15h18z"/></svg><span class="lbl">Closet</span></button>
+      <button data-view="bookings" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span class="lbl">Bookings</span> <span class="badge" id="reqBadge" hidden>0</span></button>
+      <button data-view="analytics" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16"/><path d="M6 16v-5M11 16V7M16 16v-3M21 16V9"/></svg><span class="lbl">Numbers</span></button>
+      <button data-view="about" aria-selected="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg><span class="lbl">About</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ================= BROWSE ================= -->
+    <section class="view on" id="v-browse" aria-labelledby="browse-h">
+      <div class="hero">
+        <div>
+          <div class="eyebrow" id="heroEyebrow">Last-minute in Oxford? Covered.</div>
+          <h1 id="browse-h">Find the outfit. <span class="accent">Book the dates.</span> Show up.</h1>
+          <p class="lede" id="heroLede">Browse by event, see only what is actually free for your dates, and send a rental request in two taps.</p>
+        </div>
+        <div class="need">
+          <div class="lbl"><span class="caps" style="color:var(--navy)">I need it for</span><button class="btn sm ghost" id="needClear" type="button">Clear</button></div>
+          <div class="row">
+            <input type="date" id="needFrom" aria-label="Pickup date">
+            <span aria-hidden="true" style="color:var(--muted)">to</span>
+            <input type="date" id="needTo" aria-label="Return date">
+          </div>
+          <div class="quick" id="quick" aria-label="Quick picks"></div>
+          <div class="hint" id="needHint">Pick dates and the grid hides anything already booked.</div>
+        </div>
+      </div>
+      <div class="rail" id="catRail" role="group" aria-label="Event categories"></div>
+      <div class="grid" id="grid"></div>
+      <div class="empty" id="gridEmpty" hidden><b>Nothing free for those dates.</b>Try a nearby date, or check another event.</div>
+    </section>
+
+    <!-- ================= CLOSET ================= -->
+    <section class="view" id="v-closet" aria-labelledby="closet-h">
+      <div class="season" id="season"></div>
+      <div class="bar">
+        <div><div class="eyebrow">Owner side</div><h2 id="closet-h">My Closet</h2><p class="lede">Everything you rent out. Add a piece, set a price, pause it when it is at the cleaners.</p></div>
+        <button class="btn red" id="addItem" type="button">+ Add an outfit</button>
+      </div>
+      <div class="list" id="closetList"></div>
+      <div class="empty" id="closetEmpty" hidden><b>Your closet is empty.</b>Add your first outfit to start taking bookings.</div>
+    </section>
+
+    <!-- ================= BOOKINGS ================= -->
+    <section class="view" id="v-bookings" aria-labelledby="bk-h">
+      <div class="bar">
+        <div><div class="eyebrow">Owner side</div><h2 id="bk-h">Bookings</h2><p class="lede">Requests land here. Confirm one and those dates lock on the calendar so nobody double-books.</p></div>
+        <button class="btn soft" id="manualBooking" type="button">+ Log a DM deal</button>
+      </div>
+      <div class="tabs2" id="bkTabs" role="group" aria-label="Filter bookings">
+        <button data-f="active" aria-pressed="true">Needs attention</button>
+        <button data-f="upcoming" aria-pressed="false">Upcoming</button>
+        <button data-f="done" aria-pressed="false">History</button>
+        <button data-f="all" aria-pressed="false">All</button>
+      </div>
+      <div class="list" id="bkList"></div>
+      <div class="empty" id="bkEmpty" hidden><b>All caught up.</b>No bookings in this view.</div>
+    </section>
+
+    <!-- ================= ANALYTICS ================= -->
+    <section class="view" id="v-analytics" aria-labelledby="an-h">
+      <div class="eyebrow">Owner side · preview of the later features</div>
+      <h2 id="an-h">How the closet is doing</h2>
+      <p class="lede">Every number here is computed from your real bookings on this device. Nothing is estimated.</p>
+      <div class="stats" id="stats"></div>
+      <div class="panel"><h3>Most rented</h3><div class="bars" id="rentBars"></div></div>
+      <div class="panel"><h3>Top earners</h3><div class="bars" id="earnBars"></div></div>
+      <div class="panel"><h3>By event</h3><div class="bars" id="catBars"></div></div>
+      <div class="panel">
+        <h3>Instagram views to rentals</h3>
+        <p class="note">Instagram only shares view counts with other apps through a business account and developer approval, so for now type the view count from each post's insights. The app does the conversion math. Hooking up the real API is on the "saved for later" list.</p>
+        <div class="tbl-wrap"><table class="ig" id="igTable"></table></div>
+      </div>
+    </section>
+
+    <!-- ================= ABOUT ================= -->
+    <section class="view" id="v-about" aria-labelledby="ab-h">
+      <div class="eyebrow">About this prototype</div>
+      <h2 id="ab-h">Rent &amp; Repeat</h2>
+      <div class="panel">
+        <p><b>The idea.</b> Ole Miss students who rent out dresses and outfits for date parties, formals, swaps, Grove game days and Square nights currently run everything through Instagram DMs: prices, sizes, availability, who has what and when it comes back. Rent &amp; Repeat keeps all of that in one place and only ever shows renters what is actually free for their dates.</p>
+        <p><b>Version one</b> (this build): event categories, outfit listings, an availability calendar, rental requests, an owner closet, and a bookings desk that prevents overlaps.</p>
+        <p><b>Preview of later features:</b> a numbers page computed from real bookings, with a manual field for Instagram views. <b>Saved for later:</b> payments, return reminders, renter reviews, search near campus, the real Instagram API.</p>
+      </div>
+      <div class="panel">
+        <h3>Your data</h3>
+        <p>Everything you type, including photos, is saved in this browser only (localStorage). Nothing is sent anywhere. Clearing your browser data erases it, so back up before you do.</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn sm" id="exportBtn" type="button">Download a backup (.json)</button>
+          <label class="btn sm ghost" style="cursor:pointer">Restore a backup <input type="file" id="importFile" accept="application/json" hidden></label>
+          <button class="btn sm ghost" id="shareBtn" type="button">Copy a link to share</button>
+          <button class="btn sm danger" id="clearSamples" type="button">Remove the sample outfits</button>
+          <button class="btn sm danger" id="resetAll" type="button">Erase everything</button>
+        </div>
+      </div>
+      <div class="panel">
+        <h3>Credit and disclosure</h3>
+        <p><b>Idea, walkthrough, and design direction:</b> Sienna Molsbee 2030, WRIT 3810, a Grove Lab: Student Studio project with Marc Watkins (University of Mississippi).</p>
+        <p><b>Content:</b> outfit photos are the owner's own uploads. The drawn outfits you see before any photo is added are generated illustrations, not real clothes. No real people appear in the app. Pickup spots are familiar Oxford landmarks used as labels only.</p>
+        <p><b>AI disclosure:</b> this prototype was coded with Anthropic's Claude in a co-build session. The app itself does not call any AI model while you use it. Sienna's proposal also listed an AI model for writing listing text as a possible later feature; it is not in this version.</p>
+        <p><b>Not official:</b> a student project, not affiliated with or endorsed by the University of Mississippi or any Greek organization. Colors are a nod to Oxford, nothing more.</p>
+        <p><b>Accessibility:</b> works on phones, labeled controls and live regions for screen readers, plain language, 44px tap targets, respects reduced-motion.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>Rent &amp; Repeat · a prototype from The Grove Lab: Student Studio · idea by Sienna Molsbee 2030 · built with Marc Watkins and Anthropic's Claude · unofficial, not affiliated with the University of Mississippi · all data stays on this device.</p>
+  </footer>
+</div>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+  <div class="grab" aria-hidden="true"></div>
+  <button class="x" id="sheetX" aria-label="Close">×</button>
+  <div id="sheetBody"></div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* =========================================================
+   Rent & Repeat — single-file prototype. All state in localStorage.
+   ========================================================= */
+const KEY = 'rent-and-repeat.v2';
+const CATS = [
+  {id:'date',   name:'Date Party',       sw:'#c8102e', soft:'#f6d7da', eyebrow:'Date party this weekend?',        head:'Find the outfit. <span class="accent">Book the dates.</span> Show up.', lede:'Dresses and sets other Rebels are renting out for date parties and swaps.',
+    ico:'<path d="M7 3h10l-5 8z"/><path d="M12 11v8M8 19h8"/>'},
+  {id:'formal', name:'Formal',           sw:'#14213d', soft:'#dfe3ee', eyebrow:'Formal season',                    head:'Floor-length, <span class="accent">zero stress.</span>', lede:'Gowns and long dresses for formals and pref. Steam them, return them, repeat.',
+    ico:'<path d="M9 3h6l1 5-4 2-4-2z"/><path d="M8 10 4 21h16L16 10"/>'},
+  {id:'grove',  name:'Grove Game Day',   sw:'#3f7a4e', soft:'#dfeadf', eyebrow:'Hotty Toddy',                     head:'Grove-ready <span class="accent">by kickoff.</span>', lede:'Sundresses, sets and everything that photographs well under the tents.',
+    ico:'<path d="M12 3v18"/><path d="M12 3c-5 0-8 4-8 8h16c0-4-3-8-8-8z"/><path d="M7 21h10"/>'},
+  {id:'square', name:'Square Night',     sw:'#c9a24d', soft:'#f6ecd2', eyebrow:'Out on the Square',              head:'Something for <span class="accent">tonight.</span>', lede:'Minis, sequins and going-out looks for the Square and beyond.',
+    ico:'<circle cx="12" cy="12" r="5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/>'},
+  {id:'chapter',name:'Chapter',          sw:'#7a8cc2', soft:'#e4e8f4', eyebrow:'Chapter and ritual',             head:'Chapter-approved, <span class="accent">closet-shared.</span>', lede:'Knee-length and polished for chapter, recruitment rounds and meetings.',
+    ico:'<circle cx="12" cy="9" r="5"/><path d="M9 13.5 7 21l5-3 5 3-2-7.5"/>'},
+  {id:'init',   name:'Initiation',       sw:'#e8c8c4', soft:'#f6e6e2', eyebrow:'All white, all set',              head:'Initiation white, <span class="accent">borrowed right.</span>', lede:'Whites and creams for initiation and big-little reveals.',
+    ico:'<path d="M12 3c2 3 2 6 0 9-2-3-2-6 0-9z"/><path d="M12 12v9M8 17c2 0 4 2 4 4 0-2 2-4 4-4"/>'},
+  {id:'special',name:'Special Occasion', sw:'#a53b5c', soft:'#f3dbe3', eyebrow:'Big days',                        head:'Graduation, <span class="accent">galas, grandparents.</span>', lede:'Dressy but not formal: dinners, ceremonies, family weekend.',
+    ico:'<rect x="4" y="9" width="16" height="12" rx="2"/><path d="M4 13h16M12 9v12"/><path d="M12 9c-3 0-4-3-2-4s3 2 2 4zM12 9c3 0 4-3 2-4s-3 2-2 4z"/>'},
+];
+const PICKUPS = ['Sorority Row','The Grove','The Square','Rebel Market','Campus Walk','Student Union','off campus'];
+const SIZES = ['XXS','XS','S','M','L','XL'];
+const STYLES = ['slip','aline','mini','gown','twopiece','jumpsuit','sundress','puff'];
+const PATTERNS = ['solid','sequin','dots','stripes','floral','gingham'];
+const COLORS = ['#14213d','#c8102e','#a53b5c','#e8c8c4','#2d4a3a','#c9a24d','#111111','#f4efe6','#7a8cc2','#6f3f9a','#d97a3a','#2e8b9a'];
+
+/* ---------- date helpers ---------- */
+const pad = n => String(n).padStart(2,'0');
+const iso = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const parse = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y,m-1,d); };
+const today = () => iso(new Date());
+const addDays = (s,n) => { const d = parse(s); d.setDate(d.getDate()+n); return iso(d); };
+const nights = (a,b) => Math.round((parse(b)-parse(a))/86400000)+1;
+const fmt = s => parse(s).toLocaleDateString(undefined,{month:'short',day:'numeric'});
+const fmtL = s => parse(s).toLocaleDateString(undefined,{weekday:'short',month:'short',day:'numeric'});
+const overlaps = (a1,a2,b1,b2) => a1<=b2 && b1<=a2;
+const money = n => '$'+Number(n||0).toLocaleString(undefined,{maximumFractionDigits:0});
+function nextDow(dow, from){ const d = parse(from||today()); const diff = (dow - d.getDay() + 7) % 7 || 7; d.setDate(d.getDate()+diff); return iso(d); }
+
+/* ---------- state ---------- */
+let S = load();
+function load(){
+  try{ const j = JSON.parse(localStorage.getItem(KEY)); if(j && j.items) return j; }catch(e){}
+  return seed();
+}
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){ toast('Could not save (storage full?). Try smaller photos.'); } render(); }
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+function seed(){
+  const t = today();
+  const items = [
+    {id:'s1',sample:true,title:'Rosewood slip',cat:'date',size:'S',price:25,color:'#a53b5c',style:'slip',pattern:'solid',pickup:'Sorority Row',desc:'Satin midi slip, adjustable straps. Photographs beautifully at golden hour.',listed:true,photo:null,igViews:1240},
+    {id:'s2',sample:true,title:'Midnight column gown',cat:'formal',size:'M',price:45,color:'#14213d',style:'gown',pattern:'solid',pickup:'Sorority Row',desc:'Floor-length with a low back. Steam before wearing.',listed:true,photo:null,igViews:2080},
+    {id:'s3',sample:true,title:'Sage chapter dress',cat:'chapter',size:'S',price:15,color:'#2d4a3a',style:'aline',pattern:'solid',pickup:'Campus Walk',desc:'Knee-length A-line, chapter-approved. Machine wash cold.',listed:true,photo:null,igViews:410},
+    {id:'s4',sample:true,title:'Little black mini',cat:'square',size:'XS',price:20,color:'#111111',style:'mini',pattern:'solid',pickup:'The Square',desc:'The one everyone asks about. Stretchy, forgiving, dance-tested.',listed:true,photo:null,igViews:1760},
+    {id:'s5',sample:true,title:'Ivory two-piece',cat:'init',size:'M',price:30,color:'#f4efe6',style:'twopiece',pattern:'solid',pickup:'Sorority Row',desc:'Matching set in cream crepe. Please no red wine.',listed:true,photo:null,igViews:650},
+    {id:'s6',sample:true,title:'Periwinkle jumpsuit',cat:'special',size:'L',price:35,color:'#7a8cc2',style:'jumpsuit',pattern:'solid',pickup:'Student Union',desc:'Wide-leg, pockets, zero fuss. Great for graduation dinners.',listed:true,photo:null,igViews:320},
+    {id:'s7',sample:true,title:'Grove Day gingham',cat:'grove',size:'M',price:22,color:'#c8102e',style:'sundress',pattern:'gingham',pickup:'The Grove',desc:'Red gingham sundress with tie straps. Tent-to-stadium approved.',listed:true,photo:null,igViews:1890},
+    {id:'s8',sample:true,title:'Plum velvet gown',cat:'formal',size:'S',price:50,color:'#6f3f9a',style:'gown',pattern:'solid',pickup:'Sorority Row',desc:'Stretch velvet, off-shoulder. Dry clean included in price.',listed:true,photo:null,igViews:1530},
+    {id:'s9',sample:true,title:'Gold sequin mini',cat:'square',size:'S',price:28,color:'#c9a24d',style:'mini',pattern:'sequin',pickup:'The Square',desc:'Sequins shed a little; wear it anyway.',listed:true,photo:null,igViews:2310},
+    {id:'s10',sample:true,title:'Navy puff-sleeve mini',cat:'date',size:'XS',price:18,color:'#14213d',style:'puff',pattern:'dots',pickup:'Rebel Market',desc:'Swiss dot with big puff sleeves. Very sweet.',listed:true,photo:null,igViews:970},
+    {id:'s11',sample:true,title:'Powder blue sundress',cat:'grove',size:'S',price:20,color:'#2e8b9a',style:'sundress',pattern:'floral',pickup:'The Grove',desc:'Light cotton, smocked back, hidden pockets.',listed:true,photo:null,igViews:720},
+    {id:'s12',sample:true,title:'Tangerine stripe set',cat:'date',size:'M',price:24,color:'#d97a3a',style:'twopiece',pattern:'stripes',pickup:'off campus',desc:'Linen crop and midi skirt. Wrinkles are part of the look.',listed:false,photo:null,igViews:270},
+  ];
+  const bookings = [
+    {id:'b1',sample:true,item:'s2',renter:'Maddie',contact:'@maddie.k',from:addDays(t,3),to:addDays(t,4),status:'confirmed',price:90,created:addDays(t,-6)},
+    {id:'b2',sample:true,item:'s4',renter:'Caroline',contact:'',from:addDays(t,-1),to:addDays(t,1),status:'out',price:60,created:addDays(t,-5)},
+    {id:'b3',sample:true,item:'s9',renter:'Ava',contact:'@ava.rose',from:addDays(t,6),to:addDays(t,6),status:'requested',price:28,created:t},
+    {id:'b4',sample:true,item:'s1',renter:'Lila',contact:'',from:addDays(t,-20),to:addDays(t,-19),status:'returned',price:50,created:addDays(t,-25)},
+    {id:'b5',sample:true,item:'s8',renter:'Jordan',contact:'',from:addDays(t,-12),to:addDays(t,-11),status:'returned',price:100,created:addDays(t,-18)},
+    {id:'b6',sample:true,item:'s9',renter:'Emma',contact:'',from:addDays(t,-9),to:addDays(t,-9),status:'returned',price:28,created:addDays(t,-14)},
+    {id:'b7',sample:true,item:'s4',renter:'Taylor',contact:'',from:addDays(t,-30),to:addDays(t,-29),status:'returned',price:40,created:addDays(t,-33)},
+    {id:'b8',sample:true,item:'s2',renter:'Sloane',contact:'',from:addDays(t,-4),to:addDays(t,-4),status:'returned',price:45,created:addDays(t,-10)},
+    {id:'b9',sample:true,item:'s7',renter:'Brooke',contact:'',from:nextDow(6),to:nextDow(6),status:'requested',price:22,created:t},
+    {id:'b10',sample:true,item:'s7',renter:'Kate',contact:'',from:addDays(t,-15),to:addDays(t,-14),status:'returned',price:44,created:addDays(t,-20)},
+    {id:'b11',sample:true,item:'s11',renter:'Mary Claire',contact:'',from:addDays(t,-15),to:addDays(t,-15),status:'returned',price:20,created:addDays(t,-20)},
+  ];
+  return {items,bookings,favs:[],ui:{view:'browse',cat:'all',bkFilter:'active'}};
+}
+
+/* =========================================================
+   Illustrated outfits — detailed, seeded, 8 silhouettes × 6 fabrics
+   ========================================================= */
+function hashStr(s){ let h=2166136261; for(const c of (s||'')) { h ^= c.charCodeAt(0); h = Math.imul(h,16777619); } return h>>>0; }
+function lum(hex){ const [r,g,b]=hex.slice(1).match(/../g).map(x=>parseInt(x,16)/255); return .2126*r+.7152*g+.0722*b; }
+function shade(hex,p){ const n=hex.slice(1).match(/../g).map(x=>parseInt(x,16)); return '#'+n.map(v=>pad(Math.max(0,Math.min(255,Math.round(v+p*2.55))).toString(16))).join(''); }
+function mix(a,b,t){ const A=a.slice(1).match(/../g).map(x=>parseInt(x,16)), B=b.slice(1).match(/../g).map(x=>parseInt(x,16)); return '#'+A.map((v,i)=>pad(Math.round(v+(B[i]-v)*t).toString(16))).join(''); }
+
+function dressSVG(color, style, pattern, seedStr, opts={}){
+  const h = hashStr(seedStr||'x');
+  const w = n => (((h >>> ((n*3)%28)) & 7) - 3.5) * .8;
+  const isLight = lum(color) > .7;
+  const dark = shade(color,-22), darker = shade(color,-38), light = isLight ? '#ffffff' : shade(color,30);
+  const line = isLight ? '#5a4a52' : darker;
+  const bgs = ['#f6e9e4','#efe7df','#e9eee8','#f3ead7','#ece8f2','#f7e8ee','#e8edf3'];
+  const bg = opts.bg || bgs[h%bgs.length];
+  const uid = 'p'+(h%100000)+style.slice(0,2);
+
+  let defs = `<linearGradient id="${uid}g" x1="0" x2="1"><stop offset="0" stop-color="${light}" stop-opacity=".28"/><stop offset=".35" stop-color="${color}" stop-opacity="0"/><stop offset="1" stop-color="${darker}" stop-opacity=".38"/></linearGradient>`;
+  let overlay = '', seq = '';
+  const pc = isLight ? mix(color,'#5a4a52',.35) : light;
+  if(pattern==='dots'){ defs += `<pattern id="${uid}p" width="12" height="12" patternUnits="userSpaceOnUse" patternTransform="rotate(15)"><circle cx="3" cy="3" r="1.6" fill="${pc}" opacity=".7"/><circle cx="9" cy="9" r="1.6" fill="${pc}" opacity=".7"/></pattern>`; overlay=`url(#${uid}p)`; }
+  if(pattern==='stripes'){ defs += `<pattern id="${uid}p" width="10" height="10" patternUnits="userSpaceOnUse" patternTransform="rotate(90)"><rect width="4" height="10" fill="${pc}" opacity=".55"/></pattern>`; overlay=`url(#${uid}p)`; }
+  if(pattern==='gingham'){ defs += `<pattern id="${uid}p" width="14" height="14" patternUnits="userSpaceOnUse"><rect width="7" height="14" fill="#fff" opacity=".55"/><rect width="14" height="7" fill="#fff" opacity=".55"/></pattern>`; overlay=`url(#${uid}p)`; }
+  if(pattern==='floral'){ const f=isLight?'#c8102e':'#fff'; defs += `<pattern id="${uid}p" width="26" height="26" patternUnits="userSpaceOnUse" patternTransform="rotate(20)"><g fill="${f}" opacity=".75"><circle cx="8" cy="8" r="2"/><circle cx="8" cy="3.5" r="1.6"/><circle cx="8" cy="12.5" r="1.6"/><circle cx="3.5" cy="8" r="1.6"/><circle cx="12.5" cy="8" r="1.6"/></g><circle cx="8" cy="8" r="1" fill="${isLight?'#c9a24d':'#ffe6a3'}"/><path d="M19 18 q3 -4 6 0" stroke="${f}" stroke-width="1" fill="none" opacity=".6"/></pattern>`; overlay=`url(#${uid}p)`; }
+  if(pattern==='sequin'){ for(let i=0;i<150;i++){ const x=24+((h*(i+7))%152), y=56+((h*(i+13)>>3)%206), r=1.1+((i*h)%3)*.5; const op=.35+((i*7)%5)*.12; seq+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${i%4===0?'#fff':light}" opacity="${op}"/>`; } overlay='__seq__'; }
+
+  const y = {top:70, bust:98, waist:138, hip:160};
+  let p='', neck='', straps='none'; const det=[];
+  switch(style){
+    case 'slip':
+      p = `M${76+w(1)} ${y.top} Q100 ${y.top+22} ${124+w(2)} ${y.top} L${134+w(3)} ${y.waist} L${138+w(4)} 250 L${62+w(5)} 250 L${66+w(6)} ${y.waist} Z`;
+      neck = `<path d="M${76+w(1)} ${y.top} Q100 ${y.top+22} ${124+w(2)} ${y.top}" fill="none" stroke="${line}" stroke-width="1.6"/><path d="M${80+w(1)} ${y.top+2} q10 -2 20 6 q10 -8 20 -6" fill="none" stroke="${light}" stroke-width="1.2" opacity=".6"/>`;
+      det.push(`<path d="M${84+w(2)} ${y.bust} q-10 40 2 90" fill="none" stroke="${dark}" stroke-width="1.2" opacity=".6"/>`,`<path d="M${116+w(3)} ${y.bust} q10 40 -2 90" fill="none" stroke="${dark}" stroke-width="1.2" opacity=".6"/>`,`<path d="M${126+w(1)} 250 L${126+w(1)} 196" stroke="${bg}" stroke-width="2.2"/>`,`<path d="M${72+w(4)} ${y.bust+10} q-2 30 2 60" fill="none" stroke="${light}" stroke-width="3" opacity=".5" stroke-linecap="round"/>`);
+      straps='thin'; break;
+    case 'aline':
+      p = `M${76+w(1)} ${y.top} L${124+w(2)} ${y.top} L${128+w(3)} ${y.waist} L${160+w(4)} 236 Q100 244 ${40+w(5)} 236 L${72+w(6)} ${y.waist} Z`;
+      neck = `<path d="M${76+w(1)} ${y.top} L${124+w(2)} ${y.top}" stroke="${line}" stroke-width="1.6"/>`;
+      det.push(`<path d="M${72+w(6)} ${y.waist} L${128+w(3)} ${y.waist}" stroke="${darker}" stroke-width="1.4" opacity=".7"/>`,`<path d="M${88+w(1)} ${y.top+4} q-4 28 -2 60 M${112+w(2)} ${y.top+4} q4 28 2 60" fill="none" stroke="${dark}" stroke-width="1.1" opacity=".6"/>`);
+      for(let i=0;i<5;i++){ const x0=78+i*11+w(i); det.push(`<path d="M${x0} ${y.waist+2} L${x0 + (i-2)*10} 234" stroke="${i%2?light:dark}" stroke-width="1.2" opacity=".45"/>`); }
+      straps='wide'; break;
+    case 'mini':
+      p = `M${78+w(1)} ${y.top} L${122+w(2)} ${y.top} L${126+w(3)} ${y.waist} L${146+w(4)} 204 Q100 210 ${54+w(5)} 204 L${74+w(6)} ${y.waist} Z`;
+      neck = `<path d="M${78+w(1)} ${y.top} L${122+w(2)} ${y.top}" stroke="${line}" stroke-width="1.6"/>`;
+      det.push(`<path d="M${74+w(6)} ${y.waist} L${126+w(3)} ${y.waist}" stroke="${darker}" stroke-width="1.3" opacity=".6"/>`,`<path d="M${58+w(1)} 198 Q100 204 ${142+w(2)} 198" fill="none" stroke="${light}" stroke-width="2" opacity=".5"/>`,`<path d="M${92+w(2)} ${y.top+6} q-4 20 -1 50 M${108+w(3)} ${y.top+6} q4 20 1 50" fill="none" stroke="${dark}" stroke-width="1" opacity=".5"/>`);
+      straps='thin'; break;
+    case 'gown':
+      p = `M${74+w(1)} ${y.top+2} Q100 ${y.top-6} ${126+w(2)} ${y.top+2} L${124+w(3)} ${y.waist} Q${118+w(4)} 190 ${150+w(5)} 258 Q100 266 ${46+w(6)} 258 Q${82+w(1)} 190 ${76+w(2)} ${y.waist} Z`;
+      neck = `<path d="M${74+w(1)} ${y.top+2} Q100 ${y.top-6} ${126+w(2)} ${y.top+2}" fill="none" stroke="${line}" stroke-width="1.6"/><path d="M${78+w(1)} ${y.top+3} Q100 ${y.top+12} ${122+w(2)} ${y.top+3}" fill="none" stroke="${light}" stroke-width="1.2" opacity=".6"/>`;
+      for(let i=0;i<4;i++){ const x0=84+i*10.6+w(i); det.push(`<path d="M${x0} ${y.top+8} L${x0+(i-1.5)*2} ${y.waist-2}" stroke="${dark}" stroke-width="1.1" opacity=".55"/>`); }
+      det.push(`<path d="M${76+w(2)} ${y.waist} L${124+w(3)} ${y.waist}" stroke="${darker}" stroke-width="1.4" opacity=".7"/>`,`<path d="M${100+w(1)} ${y.waist+4} Q${96+w(2)} 200 ${100+w(3)} 256" fill="none" stroke="${dark}" stroke-width="1.2" opacity=".5"/>`,`<path d="M${64+w(4)} 230 q-8 14 -12 26" fill="none" stroke="${dark}" stroke-width="1.2" opacity=".5"/>`,`<path d="M${136+w(5)} 230 q8 14 12 26" fill="none" stroke="${dark}" stroke-width="1.2" opacity=".5"/>`);
+      straps='none'; break;
+    case 'twopiece':
+      p = `M${76+w(1)} ${y.top} Q88 ${y.top+8} 100 ${y.top+2} Q112 ${y.top+8} ${124+w(2)} ${y.top} L${127+w(3)} ${y.bust+18} L${73+w(4)} ${y.bust+18} Z M${70+w(5)} ${y.waist} L${130+w(6)} ${y.waist} L${142+w(1)} 244 L${58+w(2)} 244 Z`;
+      neck = `<path d="M${76+w(1)} ${y.top} Q88 ${y.top+8} 100 ${y.top+2} Q112 ${y.top+8} ${124+w(2)} ${y.top}" fill="none" stroke="${line}" stroke-width="1.6"/>`;
+      det.push(`<path d="M${70+w(5)} ${y.waist} L${130+w(6)} ${y.waist}" stroke="${darker}" stroke-width="2.2" opacity=".75"/>`,`<path d="M${122+w(2)} 244 L${118+w(3)} 190" stroke="${bg}" stroke-width="2.4"/>`,`<path d="M100 ${y.top+4} v28" stroke="${dark}" stroke-width="1" opacity=".5"/>`,`<path d="M${80+w(2)} ${y.waist+6} q-2 50 0 94 M${118+w(3)} ${y.waist+6} q2 50 0 94" fill="none" stroke="${dark}" stroke-width="1" opacity=".4"/>`);
+      straps='thin'; break;
+    case 'jumpsuit':
+      p = `M${84+w(1)} ${y.top} L100 ${y.top-14} L${116+w(2)} ${y.top} L${128+w(3)} ${y.waist} L${140+w(4)} 258 L${104+w(5)} 258 L100 ${y.hip+8} L${96+w(6)} 258 L${60+w(1)} 258 L${72+w(2)} ${y.waist} Z`;
+      neck = `<path d="M${84+w(1)} ${y.top} L100 ${y.top-14} L${116+w(2)} ${y.top}" fill="none" stroke="${line}" stroke-width="1.6"/>`;
+      det.push(`<rect x="${70+w(2)}" y="${y.waist-5}" width="60" height="9" rx="2" fill="${darker}" opacity=".8"/><rect x="95" y="${y.waist-6}" width="10" height="11" rx="2" fill="none" stroke="${isLight?'#5a4a52':'#f3dfc0'}" stroke-width="1.6"/>`,`<path d="M${80+w(3)} ${y.waist+8} L${78+w(4)} 254 M${120+w(5)} ${y.waist+8} L${122+w(6)} 254" stroke="${dark}" stroke-width="1.2" opacity=".5"/>`,`<path d="M${74+w(1)} ${y.waist+10} q6 8 10 24 M${126+w(2)} ${y.waist+10} q-6 8 -10 24" fill="none" stroke="${dark}" stroke-width="1.2" opacity=".6"/>`);
+      straps='halter'; break;
+    case 'sundress':
+      p = `M${74+w(1)} ${y.top} L100 ${y.top+18} L${126+w(2)} ${y.top} L${128+w(3)} ${y.waist-6} L${150+w(4)} 236 Q100 244 ${50+w(5)} 236 L${72+w(6)} ${y.waist-6} Z`;
+      neck = `<path d="M${74+w(1)} ${y.top} L100 ${y.top+18} L${126+w(2)} ${y.top}" fill="none" stroke="${line}" stroke-width="1.6"/>`;
+      for(let i=0;i<4;i++){ const yy=y.top+26+i*9; det.push(`<path d="M${76+w(i)} ${yy} q12 4 24 0 t24 0" fill="none" stroke="${dark}" stroke-width="1" opacity=".55"/>`); }
+      det.push(`<path d="M${64+w(1)} 196 Q100 204 ${136+w(2)} 196" fill="none" stroke="${darker}" stroke-width="1.2" opacity=".5"/>`,`<path d="M${58+w(3)} 218 Q100 226 ${142+w(4)} 218" fill="none" stroke="${darker}" stroke-width="1.2" opacity=".5"/>`);
+      straps='tie'; break;
+    case 'puff':
+      p = `M${80+w(1)} ${y.top} L${120+w(2)} ${y.top} L${124+w(3)} ${y.waist} L${146+w(4)} 206 Q100 214 ${54+w(5)} 206 L${76+w(6)} ${y.waist} Z`;
+      neck = `<path d="M${80+w(1)} ${y.top} L${120+w(2)} ${y.top}" stroke="${line}" stroke-width="1.6"/>`;
+      det.push(`<path d="M${80+w(1)} ${y.top} q-26 2 -24 32 q10 10 24 0 z" fill="${color}" stroke="${line}" stroke-width="1.6" stroke-linejoin="round"/><path d="M${120+w(2)} ${y.top} q26 2 24 32 q-10 10 -24 0 z" fill="${color}" stroke="${line}" stroke-width="1.6" stroke-linejoin="round"/>`,`<path d="M${62+w(1)} ${y.top+22} q10 3 20 0 M${118+w(2)} ${y.top+22} q10 3 20 0" fill="none" stroke="${dark}" stroke-width="1" opacity=".6"/>`,`<path d="M${77+w(3)} ${y.waist-8} q12 3 23 0 t23 0 M${77+w(3)} ${y.waist-2} q12 3 23 0 t23 0" fill="none" stroke="${dark}" stroke-width="1" opacity=".55"/>`);
+      straps='none'; break;
+    default:
+      p = `M${76} ${y.top} L${124} ${y.top} L${128} ${y.waist} L${160} 236 Q100 244 ${40} 236 L${72} ${y.waist} Z`; straps='wide';
+  }
+
+  let strapEl='';
+  if(straps==='thin') strapEl = `<path d="M${80+w(1)} ${y.top} C84 52 92 46 100 58 M${120+w(2)} ${y.top} C116 52 108 46 100 58" fill="none" stroke="${line}" stroke-width="2" stroke-linecap="round"/>`;
+  if(straps==='wide') strapEl = `<path d="M${78+w(1)} ${y.top} L84 56 L92 56 L${90+w(2)} ${y.top} Z M${122+w(1)} ${y.top} L116 56 L108 56 L${110+w(2)} ${y.top} Z" fill="${color}" stroke="${line}" stroke-width="1.6" stroke-linejoin="round"/>`;
+  if(straps==='halter') strapEl = `<path d="M100 ${y.top-14} C98 46 102 46 100 ${y.top-14}" fill="none" stroke="${line}" stroke-width="2.4" stroke-linecap="round"/><path d="M100 52 q-6 -8 -2 -12 q4 4 2 12 q6 -8 2 -12 q-4 4 -2 12" fill="${color}" stroke="${line}" stroke-width="1.4"/>`;
+  if(straps==='tie') strapEl = `<path d="M${78+w(1)} ${y.top} C84 52 92 46 100 56 M${122+w(2)} ${y.top} C116 52 108 46 100 56" fill="none" stroke="${line}" stroke-width="2" stroke-linecap="round"/><path d="M100 56 q-8 -6 -10 2 q6 4 10 -2 q8 -6 10 2 q-6 4 -10 -2 M100 56 l-3 10 M100 56 l4 10" fill="${color}" stroke="${line}" stroke-width="1.4" stroke-linejoin="round"/>`;
+
+  const hanger = `<g><path d="M100 30 c0 -9 11 -9 11 -2 c0 5 -11 5 -11 12" fill="none" stroke="#8a7a82" stroke-width="2.2" stroke-linecap="round"/>
+    <path d="M100 42 L42 ${74+w(3)} L158 ${74+w(4)} Z" fill="#c69c6d" stroke="#8c6a46" stroke-width="2" stroke-linejoin="round"/>
+    <path d="M52 ${74+w(3)} L148 ${74+w(4)}" stroke="#8c6a46" stroke-width="1" opacity=".5"/></g>`;
+  const size = opts.size;
+  const tag = size ? `<g transform="translate(${146+w(2)} ${86+w(1)}) rotate(${12+w(3)})"><path d="M0 0 L0 -14" stroke="#8a7a82" stroke-width="1"/><rect x="-10" y="0" width="20" height="26" rx="3" fill="#fffaf5" stroke="#8a7a82" stroke-width="1"/><circle cx="0" cy="4" r="1.2" fill="#8a7a82"/><text x="0" y="20" text-anchor="middle" font-family="Hanken Grotesk, system-ui, sans-serif" font-weight="800" font-size="9" fill="#14213d">${size}</text></g>` : '';
+
+  if(overlay==='__seq__') defs += `<clipPath id="${uid}c"><path d="${p}"/></clipPath>`;
+  const overlayEl = overlay==='__seq__' ? `<g clip-path="url(#${uid}c)">${seq}</g>` : (overlay ? `<path d="${p}" fill="${overlay}"/>` : '');
+
+  return `<svg viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Drawn ${style} outfit placeholder, ${pattern}"><defs>${defs}</defs>
+    <rect width="200" height="280" fill="${bg}"/>
+    <g opacity=".08"><path d="M30 40 v200 M170 40 v200" stroke="#14213d" stroke-width="1" stroke-dasharray="2 6"/></g>
+    <ellipse cx="100" cy="264" rx="66" ry="7" fill="rgba(20,33,61,.1)"/>
+    ${hanger}
+    <g class="dress"><path d="${p}" fill="${color}" stroke="${line}" stroke-width="2.2" stroke-linejoin="round"/>${overlayEl}<path d="${p}" fill="url(#${uid}g)"/>${neck}${det.join('')}${strapEl}<path d="${p}" fill="none" stroke="${line}" stroke-width="2.2" stroke-linejoin="round"/></g>
+    ${tag}
+  </svg>`;
+}
+function picHTML(it){ return it.photo ? `<img src="${it.photo}" alt="${esc(it.title)}" loading="lazy">` : dressSVG(it.color, it.style, it.pattern||'solid', it.id+it.title, {size:it.size}); }
+
+/* ---------- availability ---------- */
+const BLOCKING = new Set(['requested','confirmed','out']);
+function blocksFor(itemId){ return S.bookings.filter(b=>b.item===itemId && BLOCKING.has(b.status)); }
+function isFree(itemId, from, to, ignoreId){ return !blocksFor(itemId).some(b=> b.id!==ignoreId && overlaps(from,to,b.from,b.to)); }
+function statusToday(it){
+  const t = today();
+  const b = blocksFor(it.id).find(b=> b.status!=='requested' && b.from<=t && t<=b.to);
+  if(!it.listed) return {k:'no',t:'Paused'};
+  if(b) return {k:'no',t:'Out · back '+fmt(b.to)};
+  const nx = blocksFor(it.id).filter(b=>b.from>t && b.status!=='requested').sort((a,b)=>a.from<b.from?-1:1)[0];
+  return {k:'ok',t: nx ? 'Free until '+fmt(addDays(nx.from,-1)) : 'Available'};
+}
+
+/* ---------- rendering ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function itemById(id){ return S.items.find(i=>i.id===id); }
+function catOf(id){ return CATS.find(c=>c.id===id)||{name:id,sw:'#999',soft:'#eee'}; }
+const PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6-5.3-6-10a6 6 0 0 1 12 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>';
+
+function render(){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.setAttribute('aria-selected', b.dataset.view===S.ui.view));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on', v.id==='v-'+S.ui.view));
+  const nReq = S.bookings.filter(b=>b.status==='requested').length;
+  const badge = $('#reqBadge'); badge.hidden = !nReq; badge.textContent = nReq;
+  renderBrowse(); renderCloset(); renderBookings(); renderAnalytics();
+}
+
+function renderBrowse(){
+  const from = $('#needFrom').value, to = $('#needTo').value || from;
+  const hasDates = from && to && from<=to;
+  const c = CATS.find(x=>x.id===S.ui.cat);
+  $('#heroEyebrow').textContent = c ? c.eyebrow : 'Last-minute in Oxford? Covered.';
+  $('#browse-h').innerHTML = c ? c.head : 'Find the outfit. <span class="accent">Book the dates.</span> Show up.';
+  $('#heroLede').textContent = c ? c.lede : 'Browse by event, see only what is actually free for your dates, and send a rental request in two taps.';
+  const fri = nextDow(5), sat = nextDow(6);
+  $('#quick').innerHTML = [['This Friday',fri,fri],['Game day Saturday',sat,sat],['Whole weekend',fri,addDays(fri,2)]].map(([l,a,b])=>`<button type="button" data-a="${a}" data-b="${b}" aria-pressed="${from===a&&to===b}">${l}</button>`).join('');
+  $('#quick').querySelectorAll('button').forEach(b=>b.onclick=()=>{ $('#needFrom').value=b.dataset.a; $('#needTo').value=b.dataset.b; renderBrowse(); });
+  $('#needHint').textContent = hasDates ? `Showing only what is free ${fmtL(from)}${to!==from?' to '+fmtL(to):''}.` : 'Pick dates and the grid hides anything already booked.';
+  const freeCount = id => S.items.filter(i=>i.listed && (id==='all'||i.cat===id) && (!hasDates || isFree(i.id,from,to))).length;
+  $('#catRail').innerHTML = [{id:'all',name:'Everything',sw:'#14213d',soft:'#dfe3ee',ico:'<path d="M4 6h16M4 12h16M4 18h10"/>'},...CATS].map(k=>
+    `<button class="cat" data-cat="${k.id}" aria-pressed="${S.ui.cat===k.id}" style="--c-soft:${k.soft}"><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="${S.ui.cat===k.id?'#fff':k.sw}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${k.ico}</svg></span><span>${k.name}<span class="cnt">${freeCount(k.id)} free</span></span></button>`).join('');
+  $('#catRail').querySelectorAll('button').forEach(b=>b.onclick=()=>{S.ui.cat=b.dataset.cat; save(); const el=document.querySelector(`.cat[data-cat="${b.dataset.cat}"]`); if(el) el.scrollIntoView({inline:'nearest',block:'nearest',behavior:'smooth'});});
+  let items = S.items.filter(i=>i.listed && (S.ui.cat==='all' || i.cat===S.ui.cat));
+  if(hasDates) items = items.filter(i=>isFree(i.id,from,to));
+  $('#grid').innerHTML = items.map(it=>{
+    const st = statusToday(it);
+    const fav = S.favs.includes(it.id);
+    return `<article class="card">
+      <div class="pic">${picHTML(it)}</div>
+      <span class="stat ${st.k}">${st.t}</span>
+      <button class="heart" data-fav="${it.id}" aria-label="${fav?'Remove from':'Save to'} favorites" aria-pressed="${fav}">${fav?'♥':'♡'}</button>
+      <div class="body"><div class="ttl">${esc(it.title)}</div>
+      <div class="meta"><span>${catOf(it.cat).name} · ${esc(it.size)}</span><span class="price">${money(it.price)}<span>/night</span></span></div>
+      <div class="pin">${PIN}${esc(it.pickup||'Oxford')}</div></div>
+      <button class="open" data-open="${it.id}">Open ${esc(it.title)}</button>
+    </article>`;}).join('');
+  $('#gridEmpty').hidden = items.length>0;
+  $('#grid').querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openItem(b.dataset.open, hasDates?{from,to}:null));
+  $('#grid').querySelectorAll('[data-fav]').forEach(b=>b.onclick=(e)=>{e.stopPropagation(); const id=b.dataset.fav; S.favs = S.favs.includes(id)?S.favs.filter(x=>x!==id):[...S.favs,id]; save();});
+}
+
+function renderCloset(){
+  const sat = nextDow(6);
+  const outNow = S.bookings.filter(b=>b.status==='out').length;
+  const satFree = S.items.filter(i=>i.listed && isFree(i.id,sat,sat)).length;
+  const pending = S.bookings.filter(b=>b.status==='requested').length;
+  $('#season').innerHTML = `<div style="flex:1"><div class="cap">This week in Oxford</div><div class="msg">${satFree} outfit${satFree===1?'':'s'} free for Saturday, ${outNow} out right now${pending?`, ${pending} request${pending===1?'':'s'} waiting`:''}.</div><div class="sub">Game-day Saturdays and date-party Fridays book first. Post early in the week.</div></div>`;
+  const list = $('#closetList');
+  list.innerHTML = S.items.map(it=>{
+    const st = statusToday(it);
+    const n = S.bookings.filter(b=>b.item===it.id && ['confirmed','out','returned'].includes(b.status)).length;
+    return `<div class="row-item">
+      <div class="th">${picHTML(it)}</div>
+      <div><div class="nm">${esc(it.title)} ${it.sample?'<span class="pill declined" title="Sample listing, remove any time">sample</span>':''}</div>
+        <div class="sub">${catOf(it.cat).name} · size ${esc(it.size)} · ${money(it.price)}/night · ${esc(it.pickup||'')} · ${n} rental${n===1?'':'s'} · <b style="color:${st.k==='ok'?'var(--grove)':'var(--red)'}">${st.t}</b></div></div>
+      <div class="acts">
+        <button class="btn sm ghost" data-edit="${it.id}">Edit</button>
+        <button class="btn sm ghost" data-toggle="${it.id}">${it.listed?'Pause':'List it'}</button>
+        <button class="btn sm danger" data-del="${it.id}">Delete</button>
+      </div></div>`;}).join('');
+  $('#closetEmpty').hidden = S.items.length>0;
+  list.querySelectorAll('[data-edit]').forEach(b=>b.onclick=()=>editItem(b.dataset.edit));
+  list.querySelectorAll('[data-toggle]').forEach(b=>b.onclick=()=>{const it=itemById(b.dataset.toggle); it.listed=!it.listed; save(); toast(it.listed?'Listed again.':'Paused. Renters will not see it.');});
+  list.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{const it=itemById(b.dataset.del); if(confirm(`Delete "${it.title}" and its bookings?`)){S.items=S.items.filter(i=>i.id!==it.id); S.bookings=S.bookings.filter(x=>x.item!==it.id); save();}});
+}
+
+function bookingState(b){ return (b.status==='out' && b.to < today()) ? 'overdue' : b.status; }
+function renderBookings(){
+  const t = today();
+  $('#bkTabs').querySelectorAll('button').forEach(x=>{x.setAttribute('aria-pressed', x.dataset.f===S.ui.bkFilter); x.onclick=()=>{S.ui.bkFilter=x.dataset.f; save();};});
+  let bs = [...S.bookings];
+  const f = S.ui.bkFilter;
+  if(f==='active') bs = bs.filter(b=> b.status==='requested' || b.status==='out' || (b.status==='confirmed' && b.from<=t));
+  if(f==='upcoming') bs = bs.filter(b=> b.status==='confirmed' && b.from>t);
+  if(f==='done') bs = bs.filter(b=> b.status==='returned' || b.status==='declined');
+  bs.sort((a,b)=> a.from<b.from?-1:1);
+  $('#bkList').innerHTML = bs.map(b=>{
+    const it = itemById(b.item)||{title:'(deleted outfit)',color:'#999',style:'aline',pattern:'solid',id:'x'};
+    const st = bookingState(b);
+    const label = {requested:'Requested',confirmed:'Confirmed',out:'Out now',returned:'Returned',declined:'Declined',overdue:'Overdue'}[st];
+    const acts = [];
+    if(b.status==='requested'){ acts.push(`<button class="btn sm" data-act="confirmed" data-id="${b.id}">Confirm</button>`,`<button class="btn sm danger" data-act="declined" data-id="${b.id}">Decline</button>`); }
+    if(b.status==='confirmed'){ acts.push(`<button class="btn sm" data-act="out" data-id="${b.id}">Handed off</button>`,`<button class="btn sm danger" data-act="declined" data-id="${b.id}">Cancel</button>`); }
+    if(b.status==='out'){ acts.push(`<button class="btn sm" data-act="returned" data-id="${b.id}">Mark returned</button>`); }
+    acts.push(`<button class="btn sm ghost" data-rm="${b.id}" aria-label="Remove booking">✕</button>`);
+    const nn = nights(b.from,b.to);
+    return `<div class="row-item">
+      <div class="th">${picHTML(it)}</div>
+      <div><div class="nm">${esc(it.title)} <span class="pill ${st}">${label}</span></div>
+        <div class="sub">${esc(b.renter||'Someone')}${b.contact?' · '+esc(b.contact):''} · ${fmtL(b.from)}${b.to!==b.from?' to '+fmtL(b.to):''} · ${nn} night${nn===1?'':'s'} · ${money(b.price)}${b.note?' · "'+esc(b.note)+'"':''}${st==='overdue'?' · <b style="color:var(--red)">due back '+fmt(b.to)+'</b>':''}</div></div>
+      <div class="acts">${acts.join('')}</div></div>`;}).join('');
+  $('#bkEmpty').hidden = bs.length>0;
+  $('#bkList').querySelectorAll('[data-act]').forEach(x=>x.onclick=()=>{
+    const b = S.bookings.find(q=>q.id===x.dataset.id);
+    if(x.dataset.act==='confirmed'){
+      const clash = blocksFor(b.item).find(q=>q.id!==b.id && q.status!=='requested' && overlaps(b.from,b.to,q.from,q.to));
+      if(clash){ toast(`Cannot confirm: ${clash.renter} already has it ${fmt(clash.from)} to ${fmt(clash.to)}.`); return; }
+    }
+    b.status = x.dataset.act;
+    if(b.status==='confirmed'){ S.bookings.forEach(q=>{ if(q.id!==b.id && q.item===b.item && q.status==='requested' && overlaps(b.from,b.to,q.from,q.to)) q.status='declined'; }); }
+    save(); toast({confirmed:'Confirmed. Those dates are locked.',declined:'Declined.',out:'Marked as handed off.',returned:'Back in the closet. Income counted.'}[b.status]);
+  });
+  $('#bkList').querySelectorAll('[data-rm]').forEach(x=>x.onclick=()=>{ if(confirm('Remove this booking record?')){ S.bookings=S.bookings.filter(q=>q.id!==x.dataset.rm); save(); } });
+}
+
+function countUp(el, target, fmtFn){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent = fmtFn(target); return; }
+  const t0 = performance.now(), dur = 700;
+  const step = now => { const p = Math.min(1,(now-t0)/dur); const e = 1-Math.pow(1-p,3); el.textContent = fmtFn(Math.round(target*e)); if(p<1) requestAnimationFrame(step); };
+  requestAnimationFrame(step);
+}
+function renderAnalytics(){
+  const earned = S.bookings.filter(b=>['confirmed','out','returned'].includes(b.status));
+  const income = earned.reduce((a,b)=>a+Number(b.price||0),0);
+  const paid = S.bookings.filter(b=>b.status==='returned').reduce((a,b)=>a+Number(b.price||0),0);
+  const t=today(); const m30 = addDays(t,-30);
+  const last30 = earned.filter(b=>b.from>=m30 && b.from<=t).reduce((a,b)=>a+Number(b.price||0),0);
+  const outNow = S.bookings.filter(b=>b.status==='out').length;
+  const pending = S.bookings.filter(b=>b.status==='requested').length;
+  const tiles = [
+    ['Total booked', income, money, `${earned.length} rental${earned.length===1?'':'s'} confirmed or completed`],
+    ['Completed', paid, money, 'returned and done'],
+    ['Last 30 days', last30, money, 'by rental start date'],
+    ['Out right now', outNow, v=>String(v), pending?`${pending} request${pending===1?'':'s'} waiting`:'no requests waiting'],
+  ];
+  $('#stats').innerHTML = tiles.map(([k,,,s],i)=>`<div class="stat-tile"><div class="k">${k}</div><div class="v" id="tile${i}">0</div><div class="s">${s}</div></div>`).join('');
+  if(S.ui.view==='analytics') tiles.forEach(([,v,f],i)=>countUp($('#tile'+i), v, f)); else tiles.forEach(([,v,f],i)=>$('#tile'+i).textContent=f(v));
+
+  const per = S.items.map(it=>{ const bs=earned.filter(b=>b.item===it.id); return {it,n:bs.length,sum:bs.reduce((a,b)=>a+Number(b.price||0),0)}; });
+  const bars = (rows,key,fmtv,label)=>{ const max=Math.max(1,...rows.map(r=>r[key])); const top=rows.filter(r=>r[key]>0).sort((a,b)=>b[key]-a[key]).slice(0,6);
+    return top.length? top.map(r=>`<div class="bar-row"><span>${esc(label(r))}</span><div class="trk"><div class="fill" style="width:${r[key]/max*100}%"></div></div><span class="n">${fmtv(r[key])}</span></div>`).join('') : '<div style="color:var(--muted);font-size:14px">No rentals yet.</div>'; };
+  $('#rentBars').innerHTML = bars(per,'n',v=>v+'×',r=>r.it.title);
+  $('#earnBars').innerHTML = bars(per,'sum',money,r=>r.it.title);
+  const byCat = CATS.map(c=>({c, sum: earned.filter(b=>(itemById(b.item)||{}).cat===c.id).reduce((a,b)=>a+Number(b.price||0),0)}));
+  $('#catBars').innerHTML = bars(byCat,'sum',money,r=>r.c.name);
+
+  $('#igTable').innerHTML = `<thead><tr><th>Outfit</th><th>IG views</th><th>Rentals</th><th>Views per rental</th></tr></thead><tbody>` +
+    S.items.map(it=>{ const r=per.find(p=>p.it.id===it.id); const v=Number(it.igViews||0);
+      const conv = r.n? (v/r.n) : null;
+      return `<tr><td>${esc(it.title)}</td><td><input type="number" min="0" inputmode="numeric" value="${v||''}" placeholder="0" data-ig="${it.id}" aria-label="Instagram views for ${esc(it.title)}"></td><td>${r.n}</td><td>${conv===null?(v?'<span style="color:var(--muted)">no rentals yet</span>':'<span style="color:var(--muted)">—</span>'):'<b>'+Math.round(conv).toLocaleString()+'</b> views each'}</td></tr>`;}).join('') + '</tbody>';
+  $('#igTable').querySelectorAll('[data-ig]').forEach(inp=>inp.onchange=()=>{ itemById(inp.dataset.ig).igViews=Number(inp.value||0); save(); });
+}
+
+/* ---------- sheet ---------- */
+function openSheet(html){ const wasOpen=$('#sheet').classList.contains('on'); $('#sheetBody').innerHTML = html; $('#sheet').classList.add('on'); $('#sheetBg').classList.add('on'); document.body.style.overflow='hidden'; const h=$('#sheetBody h2, #sheetBody h3'); if(h){h.id='sheetTitle';} if(!wasOpen){ $('#sheet').scrollTop=0; setTimeout(()=>$('#sheetX').focus(),30);} }
+function closeSheet(){ $('#sheet').classList.remove('on'); $('#sheetBg').classList.remove('on'); document.body.style.overflow=''; }
+$('#sheetX').onclick = closeSheet; $('#sheetBg').onclick = closeSheet;
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+
+/* ---------- item detail + booking ---------- */
+function openItem(id, pre){
+  const it = itemById(id); if(!it) return;
+  let month = parse(pre?pre.from:today()); month = new Date(month.getFullYear(), month.getMonth(), 1);
+  let selFrom = pre?pre.from:null, selTo = pre?pre.to:null;
+  let form = {name:'',contact:'',note:''};
+  const keepForm = ()=>{ const a=$('#rName'),b=$('#rContact'),c=$('#rNote'); if(a) form={name:a.value,contact:b.value,note:c.value}; };
+  const draw = ()=>{
+    const bl = blocksFor(it.id);
+    const t = today();
+    const n = selFrom&&selTo ? nights(selFrom,selTo) : 0;
+    const free = selFrom&&selTo ? isFree(it.id,selFrom,selTo) : false;
+    const c = catOf(it.cat);
+    openSheet(`<div class="detail">
+      <div class="pic">${it.photo?picHTML(it):dressSVG(it.color,it.style,it.pattern||'solid',it.id+it.title,{size:it.size,bg:c.soft})}</div>
+      <div class="info">
+        <div class="eyebrow" style="color:${c.sw}">${c.name} · pickup at ${esc(it.pickup||'Oxford')}</div>
+        <h2>${esc(it.title)}</h2>
+        <div class="kv"><span>Size <b>${esc(it.size)}</b></span><span>Rate <b>${money(it.price)}/night</b></span><span>Status <b style="color:${statusToday(it).k==='ok'?'var(--grove)':'var(--red)'}">${statusToday(it).t}</b></span></div>
+        <p class="desc">${esc(it.desc||'')}</p>
+        <div class="eyebrow navy">Pick your dates</div>
+        <div class="cal" id="cal">
+          <div class="hd"><button type="button" id="calPrev" aria-label="Previous month">‹</button><b>${month.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</b><button type="button" id="calNext" aria-label="Next month">›</button></div>
+          <div class="dow">${['Su','Mo','Tu','We','Th','Fr','Sa'].map(d=>`<span>${d}</span>`).join('')}</div>
+          <div class="days">${calDays(month, bl, t, selFrom, selTo)}</div>
+        </div>
+        <div class="legend"><span><i style="background:var(--red-soft)"></i>Booked</span><span><i style="background:var(--amber-soft)"></i>Requested by someone</span><span><i style="background:var(--navy)"></i>Your pick</span></div>
+        <div class="pick" aria-live="polite">${selFrom? (selTo? `<span><b>${fmtL(selFrom)}</b>${selTo!==selFrom?' to <b>'+fmtL(selTo)+'</b>':''} · ${n} night${n===1?'':'s'}</span><span class="total" style="margin-left:auto">${money(n*it.price)}</span>` : `<span>Pickup <b>${fmtL(selFrom)}</b>. Now tap the return day (or the same day).</span>`) : '<span>Tap the day you pick it up.</span>'}</div>
+        ${selFrom&&selTo&&!free?'<p class="note" style="border-color:var(--red)">Those dates overlap a booking. Choose different days.</p>':''}
+        <form id="reqForm" ${selFrom&&selTo&&free?'':'hidden'}>
+          <div class="two">
+            <div class="field"><label for="rName">Your name</label><input type="text" id="rName" required autocomplete="name" placeholder="First name is fine" value="${esc(form.name)}"></div>
+            <div class="field"><label for="rContact">How to reach you <span class="help">(optional)</span></label><input type="text" id="rContact" placeholder="@instagram or phone" value="${esc(form.contact)}"></div>
+          </div>
+          <div class="field"><label for="rNote">Anything the owner should know? <span class="help">(optional)</span></label><input type="text" id="rNote" placeholder="Event, pickup time…" value="${esc(form.note)}"></div>
+          <button class="btn red" type="submit">Request these dates · ${money(n*it.price)}</button>
+          <p style="margin:8px 0 0;font-size:12px;color:var(--muted)">The owner confirms from the Bookings tab. Your request holds the dates until then. Saved on this device only.</p>
+        </form>
+      </div></div>`);
+    $('#calPrev').onclick=()=>{keepForm(); month=new Date(month.getFullYear(),month.getMonth()-1,1);draw();};
+    $('#calNext').onclick=()=>{keepForm(); month=new Date(month.getFullYear(),month.getMonth()+1,1);draw();};
+    $('#cal').querySelectorAll('.d[data-d]').forEach(b=>b.onclick=()=>{
+      keepForm(); const d=b.dataset.d;
+      if(!selFrom || (selFrom&&selTo)){ selFrom=d; selTo=null; }
+      else { if(d<selFrom){ selTo=selFrom; selFrom=d; } else selTo=d; }
+      draw();
+    });
+    const f=$('#reqForm'); if(f) f.onsubmit=(e)=>{e.preventDefault();
+      if(!isFree(it.id,selFrom,selTo)){ toast('Someone just took those dates.'); draw(); return; }
+      S.bookings.push({id:uid(),item:it.id,renter:$('#rName').value.trim(),contact:$('#rContact').value.trim(),note:$('#rNote').value.trim(),from:selFrom,to:selTo,status:'requested',price:n*it.price,created:today()});
+      save(); closeSheet(); toast(`Request sent for ${it.title}. The owner will confirm.`);
+    };
+  };
+  draw();
+}
+function calDays(month, blocks, t, selFrom, selTo){
+  const y=month.getFullYear(), m=month.getMonth();
+  const first = new Date(y,m,1).getDay(), count = new Date(y,m+1,0).getDate();
+  let out=''; for(let i=0;i<first;i++) out+='<span class="d pad"></span>';
+  for(let d=1; d<=count; d++){
+    const s=`${y}-${pad(m+1)}-${pad(d)}`;
+    const b = blocks.find(b=> b.from<=s && s<=b.to);
+    const past = s<t;
+    let cls='d'; if(past) cls+=' past'; if(s===t) cls+=' today';
+    if(b) cls+= b.status==='requested'?' req':' booked';
+    if(selFrom && s===selFrom) cls+=' sel';
+    if(selTo && s===selTo) cls+=' sel';
+    if(selFrom&&selTo&&s>selFrom&&s<selTo) cls+=' inr';
+    const dis = past || !!b;
+    out += `<button type="button" class="${cls}" ${dis?'disabled':''} data-d="${s}" aria-label="${fmtL(s)}${b?', '+(b.status==='requested'?'requested':'booked'):''}">${d}</button>`;
+  }
+  return out;
+}
+
+/* ---------- add / edit item ---------- */
+function itemForm(it){
+  const isNew = !it; it = it || {title:'',cat:'date',size:'S',price:20,color:COLORS[0],style:'aline',pattern:'solid',pickup:PICKUPS[0],desc:'',listed:true,photo:null};
+  let photo = it.photo, color=it.color, style=it.style, pattern=it.pattern||'solid';
+  const keep=()=>{ it.title=$('#fTitle').value; it.cat=$('#fCat').value; it.size=$('#fSize').value; it.price=$('#fPrice').value; it.pickup=$('#fPickup').value; it.desc=$('#fDesc').value; it.listed=$('#fListed').checked; };
+  const draw=()=>{
+    openSheet(`<div class="info" style="padding:22px 24px 28px;max-width:760px;margin:0 auto">
+      <div class="eyebrow">${isNew?'New listing':'Edit listing'}</div>
+      <h2>${isNew?'Add an outfit':esc(it.title)}</h2>
+      <form id="itemForm" style="margin-top:14px">
+        <div class="field"><label for="fTitle">Name it</label><input id="fTitle" type="text" required value="${esc(it.title)}" placeholder="Rosewood slip, Grove Day gingham…"></div>
+        <div class="two">
+          <div class="field"><label for="fCat">Event</label><select id="fCat">${CATS.map(c=>`<option value="${c.id}" ${it.cat===c.id?'selected':''}>${c.name}</option>`).join('')}</select></div>
+          <div class="field"><label for="fSize">Size</label><select id="fSize">${SIZES.map(s=>`<option ${it.size===s?'selected':''}>${s}</option>`).join('')}</select></div>
+        </div>
+        <div class="two">
+          <div class="field"><label for="fPrice">Price per night ($)</label><input id="fPrice" type="number" min="0" step="1" inputmode="numeric" required value="${it.price}"></div>
+          <div class="field"><label for="fPickup">Pickup spot</label><select id="fPickup">${PICKUPS.map(p=>`<option ${it.pickup===p?'selected':''}>${p}</option>`).join('')}</select></div>
+        </div>
+        <div class="field"><label for="fDesc">Details renters should know</label><textarea id="fDesc" placeholder="Fit, fabric, care, quirks…">${esc(it.desc)}</textarea></div>
+        <div class="field"><label style="display:flex;gap:8px;align-items:center;text-transform:none;letter-spacing:0;font-size:14px"><input type="checkbox" id="fListed" ${it.listed?'checked':''}> Show it to renters</label></div>
+        <div class="field"><label>Photo</label>
+          <div class="drop" id="drop">
+            <div class="prev">${photo?`<img src="${photo}" alt="">`:dressSVG(color,style,pattern,'preview',{})}</div>
+            <div>${photo?'Your photo is in.':'No photo yet, so renters see this drawing.'} Photos are shrunk and kept on this device.</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+              <label class="btn sm soft" style="cursor:pointer">${photo?'Replace photo':'Add a photo'} <input type="file" id="fPhoto" accept="image/*" hidden></label>
+              ${photo?'<button type="button" class="btn sm ghost" id="fPhotoRm">Remove photo</button>':''}
+            </div>
+          </div></div>
+        ${photo?'':`
+          <div class="field"><label>Drawing colour</label><div class="swatches" role="group">${COLORS.map(c=>`<button type="button" data-c="${c}" style="background:${c}" aria-pressed="${c===color}" aria-label="colour ${c}"></button>`).join('')}</div></div>
+          <div class="field"><label>Drawing shape</label><div class="styles" role="group">${STYLES.map(s=>`<button type="button" data-s="${s}" aria-pressed="${s===style}" aria-label="${s}">${dressSVG(color,s,pattern,'pick'+s,{})}</button>`).join('')}</div></div>
+          <div class="field"><label>Fabric</label><div class="pats" role="group">${PATTERNS.map(p=>`<button type="button" data-p="${p}" aria-pressed="${p===pattern}">${p}</button>`).join('')}</div></div>`}
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px"><button class="btn red" type="submit">${isNew?'Add to closet':'Save changes'}</button><button class="btn ghost" type="button" id="fCancel">Cancel</button></div>
+      </form></div>`);
+    $('#fCancel').onclick=closeSheet;
+    document.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>{color=b.dataset.c; keep(); draw();});
+    document.querySelectorAll('[data-s]').forEach(b=>b.onclick=()=>{style=b.dataset.s; keep(); draw();});
+    document.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{pattern=b.dataset.p; keep(); draw();});
+    $('#fPhoto').onchange=async e=>{ const f=e.target.files[0]; if(!f) return; keep(); photo = await shrink(f); draw(); };
+    const rm=$('#fPhotoRm'); if(rm) rm.onclick=()=>{keep(); photo=null; draw();};
+    $('#itemForm').onsubmit=e=>{e.preventDefault(); keep();
+      Object.assign(it,{price:Number(it.price),color,style,pattern,photo});
+      if(isNew){ it.id=uid(); it.igViews=0; S.items.unshift(it); }
+      save(); closeSheet(); toast(isNew?'Added to your closet.':'Saved.');
+    };
+  };
+  draw();
+}
+function editItem(id){ itemForm(itemById(id)); }
+$('#addItem').onclick=()=>itemForm(null);
+function shrink(file){ return new Promise(res=>{ const img=new Image(); const url=URL.createObjectURL(file);
+  img.onload=()=>{ const max=720; let w=img.width,h=img.height; const k=Math.min(1,max/Math.max(w,h)); w=Math.round(w*k); h=Math.round(h*k);
+    const c=document.createElement('canvas'); c.width=w; c.height=h; c.getContext('2d').drawImage(img,0,0,w,h); URL.revokeObjectURL(url); res(c.toDataURL('image/jpeg',.82)); };
+  img.src=url; }); }
+
+/* ---------- manual booking ---------- */
+$('#manualBooking').onclick=()=>{
+  if(!S.items.length){ toast('Add an outfit first.'); return; }
+  openSheet(`<div class="info" style="padding:22px 24px 28px;max-width:640px;margin:0 auto">
+    <div class="eyebrow">Owner side</div><h2>Log a DM deal</h2>
+    <p class="lede">For rentals you already agreed to over Instagram. It locks the dates like a confirmed request.</p>
+    <form id="mbForm" style="margin-top:14px">
+      <div class="field"><label for="mbItem">Outfit</label><select id="mbItem">${S.items.map(i=>`<option value="${i.id}">${esc(i.title)} · ${money(i.price)}/night</option>`).join('')}</select></div>
+      <div class="two"><div class="field"><label for="mbFrom">Pickup</label><input id="mbFrom" type="date" required value="${today()}"></div><div class="field"><label for="mbTo">Return</label><input id="mbTo" type="date" required value="${today()}"></div></div>
+      <div class="two"><div class="field"><label for="mbName">Renter</label><input id="mbName" type="text" required placeholder="Name"></div><div class="field"><label for="mbPrice">Total charged ($)</label><input id="mbPrice" type="number" min="0" step="1" inputmode="numeric"></div></div>
+      <div class="field"><label for="mbStatus">Status</label><select id="mbStatus"><option value="confirmed">Confirmed, not picked up yet</option><option value="out">Out with them now</option><option value="returned">Already returned (history)</option></select></div>
+      <button class="btn red" type="submit">Save booking</button></form></div>`);
+  const price=()=>{ const it=itemById($('#mbItem').value); const a=$('#mbFrom').value,b=$('#mbTo').value; if(a&&b&&a<=b) $('#mbPrice').placeholder = nights(a,b)*it.price; };
+  ['mbItem','mbFrom','mbTo'].forEach(id=>$('#'+id).onchange=price); price();
+  $('#mbForm').onsubmit=e=>{e.preventDefault(); const item=$('#mbItem').value, from=$('#mbFrom').value, to=$('#mbTo').value;
+    if(to<from){ toast('Return date is before pickup.'); return; }
+    if(!isFree(item,from,to)){ toast('Those dates overlap another booking for this outfit.'); return; }
+    const it=itemById(item); S.bookings.push({id:uid(),item,renter:$('#mbName').value.trim(),contact:'',from,to,status:$('#mbStatus').value,price:Number($('#mbPrice').value||nights(from,to)*it.price),created:today()});
+    save(); closeSheet(); toast('Booking logged.'); };
+};
+
+/* ---------- nav + misc ---------- */
+document.querySelectorAll('nav.tabs button').forEach(b=>b.onclick=()=>{S.ui.view=b.dataset.view; save(); window.scrollTo({top:0,behavior:'smooth'});});
+$('#home').onclick=e=>{e.preventDefault(); S.ui.view='browse'; S.ui.cat='all'; save();};
+['needFrom','needTo'].forEach(id=>$('#'+id).onchange=()=>{ if($('#needTo').value && $('#needFrom').value && $('#needTo').value<$('#needFrom').value) $('#needTo').value=$('#needFrom').value; renderBrowse(); });
+$('#needClear').onclick=()=>{$('#needFrom').value='';$('#needTo').value='';renderBrowse();};
+$('#needFrom').min = today(); $('#needTo').min = today();
+
+let toastT; function toast(m){ const t=$('#toast'); t.textContent=m; t.classList.add('on'); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove('on'),3200); }
+
+$('#exportBtn').onclick=()=>{ const a=document.createElement('a'); a.href='data:application/json;charset=utf-8,'+encodeURIComponent(JSON.stringify(S,null,2)); a.download=`rent-and-repeat-backup-${today()}.json`; a.click(); toast('Backup downloaded.'); };
+$('#importFile').onchange=e=>{ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=()=>{ try{ const j=JSON.parse(r.result); if(!j.items||!j.bookings) throw 0; S=j; save(); toast('Backup restored.'); }catch{ toast('That file is not a Rent & Repeat backup.'); } }; r.readAsText(f); };
+$('#shareBtn').onclick=async()=>{ const u=location.href.split('#')[0]; try{ await navigator.clipboard.writeText(u); toast('Link copied. Your closet stays on this device; others see the sample closet.'); }catch{ prompt('Copy this link:',u); } };
+$('#clearSamples').onclick=()=>{ if(confirm('Remove the sample outfits and sample bookings?')){ S.items=S.items.filter(i=>!i.sample); S.bookings=S.bookings.filter(b=>!b.sample); S.favs=[]; save(); toast('Samples removed. It is your closet now.'); } };
+$('#resetAll').onclick=()=>{ if(confirm('Erase everything on this device and start over with the samples?')){ localStorage.removeItem(KEY); S=seed(); save(); } };
+
+render();
+</script>
+</body>
+</html>
